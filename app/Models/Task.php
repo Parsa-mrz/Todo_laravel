@@ -10,8 +10,7 @@ use App\Models\Category;
 
 class Task extends Model
 {
-    protected $fillable = ['title', 'description', 'due_date', 'completed', 'category_id'];
-    protected $casts = ['due_date' => 'datetime', 'completed' => 'boolean'];
+    protected $fillable = ['title', 'description', 'due_date', 'status', 'category_id'];
 
     public function user()
     {
