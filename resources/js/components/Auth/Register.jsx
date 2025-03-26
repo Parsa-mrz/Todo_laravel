@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // State for toggle
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('/sanctum/csrf-cookie');
@@ -15,8 +16,14 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('/api/register', { name, email, password });
-            window.location.href = '/tasks';
+            const response = await axios.post('/api/register', { name, email, password });
+
+            const { token } = response.data;
+
+            localStorage.setItem('authToken', token);
+
+            navigate('/login');
+
         } catch (err) {
             if (err.response && err.response.status === 422) {
                 // Extract validation error messages and display them

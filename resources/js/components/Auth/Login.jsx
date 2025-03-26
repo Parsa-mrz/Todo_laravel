@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // State for toggle
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('/sanctum/csrf-cookie');
@@ -14,10 +16,17 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post('/api/login', { email, password });
-            window.location.href = '/tasks';
+            const response = await axios.post('/api/login', { email, password });
+            localStorage.setItem('authToken', response.data.token);
+            navigate('/dashboard');
         } catch (err) {
-            setError('Invalid credentials');
+            if (err.response && err.response.status === 422) {
+                const validationErrors = err.response.data.errors;
+                const errorMessages = Object.values(validationErrors).join(' ');
+                setError(errorMessages);
+            } else {
+                setError('Something went wrong. Please try again later.');
+            }
         }
     };
 
@@ -48,7 +57,7 @@ const Login = () => {
                         <div className="relative">
                             <input
                                 id="password"
-                                type={showPassword ? "text" : "password"} // Toggle between text and password
+                                type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
