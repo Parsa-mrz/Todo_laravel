@@ -33,7 +33,7 @@ class TaskController extends Controller
     {
         return response()->json([
             'message' => 'Tasks fetched successfully',
-            'tasks' => TaskResource::collection($request->user()->tasks()->with('category')->get())
+            'data' => TaskResource::collection($request->user()->tasks()->with('category')->get())
         ]);
 
     }
@@ -49,7 +49,7 @@ class TaskController extends Controller
         $task = $request->user()->tasks()->create($request->validated());
         return response()->json([
             'message' => 'Task created successfully',
-            'task' => new TaskResource($task->load('category')),
+            'data' => new TaskResource($task->load('category')),
         ], Response::HTTP_CREATED);
     }
 
@@ -64,7 +64,7 @@ class TaskController extends Controller
         Gate::authorize('view', $task);
         return response()->json([
             'message' => 'Task fetched successfully',
-            'task' => new TaskResource($task->load('category'))
+            'data' => new TaskResource($task->load('category'))
         ]);
     }
 
@@ -82,7 +82,7 @@ class TaskController extends Controller
 
         return response()->json([
             'message' => 'Task fetched successfully',
-            'task' => new TaskResource($task->load('category'))
+            'data' => new TaskResource($task->load('category'))
         ]);
     }
 

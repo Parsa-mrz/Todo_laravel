@@ -32,7 +32,7 @@ class CategoryController extends Controller
     {
         return response()->json([
             'message' => 'Categories fetched successfully',
-            'categories' => CategoryResource::collection($request->user()->categories()->with('tasks')->get())
+            'data' => CategoryResource::collection($request->user()->categories()->with('tasks')->get())
         ]);
     }
 
@@ -47,7 +47,7 @@ class CategoryController extends Controller
         $category = $request->user()->categories()->create($request->validated());
         return response()->json([
             'message' => 'Category created successfully',
-            'category' => new CategoryResource($category),
+            'data' => new CategoryResource($category),
         ], Response::HTTP_CREATED);
     }
 
@@ -62,7 +62,7 @@ class CategoryController extends Controller
         Gate::authorize('view', $category);
         return response()->json([
             'message' => 'Category fetched successfully',
-            'category' =>new CategoryResource($category->load('tasks'))
+            'data' =>new CategoryResource($category->load('tasks'))
         ]);
     }
 
@@ -80,7 +80,7 @@ class CategoryController extends Controller
         
         return response()->json([
             'message' => 'Category updated successfully',
-            'category' =>new CategoryResource($category->load('tasks'))
+            'data' =>new CategoryResource($category->load('tasks'))
         ]);
     }
 

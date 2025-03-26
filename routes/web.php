@@ -2,6 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    abort(404);
-});
+Route::get('/{any}', function () {
+    return view('layout');
+})->where('any', '.*');
