@@ -5,10 +5,20 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Class StoreTaskRequest
+ *
+ * Handles the validation rules for creating a new task.
+ * Ensures that the task title is unique to the user, along with other validation rules.
+ *
+ * @package App\Http\Requests
+ */
 class StoreTaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -37,6 +47,8 @@ class StoreTaskRequest extends FormRequest
 
     /**
      * Get custom error messages for validation.
+     *
+     * @return array<string, string>
      */
     public function messages()
     {

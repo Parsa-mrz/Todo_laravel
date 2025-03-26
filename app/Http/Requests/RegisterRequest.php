@@ -6,10 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
+/**
+ * Class RegisterRequest
+ *
+ * Handles validation rules for user registration requests.
+ * 
+ * @package App\Http\Requests
+ */
 class RegisterRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
@@ -30,6 +39,11 @@ class RegisterRequest extends BaseFormRequest
         ];
     }
 
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array<string, string>
+     */
     public function messages()
     {
         return [

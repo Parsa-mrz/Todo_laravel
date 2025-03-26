@@ -4,10 +4,19 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Class LoginRequest
+ *
+ * Handles validation for user login requests.
+ * 
+ * @package App\Http\Requests
+ */
 class LoginRequest extends BaseFormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool.
      */
     public function authorize(): bool
     {
@@ -17,7 +26,7 @@ class LoginRequest extends BaseFormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string> The validation rules.
      */
     public function rules(): array
     {
@@ -27,6 +36,11 @@ class LoginRequest extends BaseFormRequest
         ];
     }
 
+    /**
+     * Get custom error messages for validation rules.
+     *
+     * @return array<string, string> The custom error messages.
+     */
     public function messages()
     {
         return [

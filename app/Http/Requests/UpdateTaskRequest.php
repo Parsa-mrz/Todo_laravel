@@ -5,15 +5,26 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
+/**
+ * Class UpdateTaskRequest
+ *
+ * Handles the validation rules for updating an existing task.
+ * Ensures the task title is unique for the user, and that the status and other fields meet the required criteria.
+ *
+ * @package App\Http\Requests
+ */
 class UpdateTaskRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
+     *
+     * @return bool
      */
     public function authorize(): bool
     {
         return true;
     }
+
 
     /**
      * Get the validation rules that apply to the request.
@@ -39,6 +50,8 @@ class UpdateTaskRequest extends FormRequest
 
     /**
      * Get custom error messages for validation.
+     *
+     * @return array<string, string>
      */
     public function messages()
     {

@@ -12,8 +12,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Class TaskController
+ *
+ * Handles CRUD operations for tasks.
+ *
+ * This controller is responsible for displaying, storing, updating, and deleting tasks for authenticated users.
+ *
+ * @package App\Http\Controllers\API
+ */
 class TaskController extends Controller
 {
+    /**
+     * Display a list of tasks for the authenticated user.
+     *
+     * @param Request $request The request instance.
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with tasks.
+     */
     public function index(Request $request)
     {
         return response()->json([
@@ -23,6 +38,12 @@ class TaskController extends Controller
 
     }
 
+    /**
+     * Store a newly created task.
+     *
+     * @param StoreTaskRequest $request The request containing task details.
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with the created task.
+     */
     public function store(StoreTaskRequest $request)
     {
         $task = $request->user()->tasks()->create($request->validated());
@@ -32,6 +53,12 @@ class TaskController extends Controller
         ], Response::HTTP_CREATED);
     }
 
+    /**
+     * Display the specified task.
+     *
+     * @param Task $task The task instance.
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with the task details.
+     */
     public function show(Task $task)
     {
         Gate::authorize('view', $task);
@@ -41,6 +68,13 @@ class TaskController extends Controller
         ]);
     }
 
+    /**
+     * Update the specified task.
+     *
+     * @param UpdateTaskRequest $request The request containing updated task details.
+     * @param Task $task The task instance.
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response with the updated task.
+     */
     public function update(UpdateTaskRequest $request, Task $task)
     {
         Gate::authorize('update', $task);
@@ -52,6 +86,12 @@ class TaskController extends Controller
         ]);
     }
 
+    /**
+     * Remove the specified task.
+     *
+     * @param Task $task The task instance.
+     * @return \Illuminate\Http\JsonResponse Returns a JSON response confirming deletion.
+     */
     public function destroy(Task $task)
     {
         Gate::authorize('delete', $task);
