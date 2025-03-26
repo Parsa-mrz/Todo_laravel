@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Category;
 use App\Models\Task;
@@ -14,19 +16,16 @@ class TaskController extends Controller
 {
     public function index(Request $request)
     {
-        return TaskResource::collection($request->user()->tasks()->with('category')->get());
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255|unique:tasks,title,NULL,id,user_id,' . $request->user()->id,
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date|after_or_equal:today',
-            'category_id' => 'nullable|exists:categories,id',
+        return response()->json([
+            'message' => 'Tasks fetched successfully',
+            'tasks' => TaskResource::collection($request->user()->tasks()->with('category')->get())
         ]);
 
-        $task = $request->user()->tasks()->create($request->all());
+    }
+
+    public function store(StoreTaskRequest $request)
+    {
+        $task = $request->user()->tasks()->create($request->validated());
         return response()->json([
             'message' => 'Task created successfully',
             'task' => new TaskResource($task->load('category')),
@@ -36,22 +35,21 @@ class TaskController extends Controller
     public function show(Task $task)
     {
         Gate::authorize('view', $task);
-        return new TaskResource($task->load('category'));
+        return response()->json([
+            'message' => 'Task fetched successfully',
+            'task' => new TaskResource($task->load('category'))
+        ]);
     }
 
-    public function update(Request $request, Task $task)
+    public function update(UpdateTaskRequest $request, Task $task)
     {
         Gate::authorize('update', $task);
-        $request->validate([
-            'title' => 'sometimes|required|string|max:255|unique:tasks,title,' . $task->id . ',id,user_id,' . $request->user()->id,
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date|after_or_equal:today',
-            'status' => 'sometimes|in:pending,in-progress,completed',
-            'category_id' => 'nullable|exists:categories,id',
-        ]);
+        $task->update($request->validated());
 
-        $task->update($request->all());
-        return new TaskResource($task->load('category'));
+        return response()->json([
+            'message' => 'Task fetched successfully',
+            'task' => new TaskResource($task->load('category'))
+        ]);
     }
 
     public function destroy(Task $task)

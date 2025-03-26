@@ -15,7 +15,10 @@ class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        return CategoryResource::collection($request->user()->categories()->with('tasks')->get());
+        return response()->json([
+            'message' => 'Categories fetched successfully',
+            'categories' => CategoryResource::collection($request->user()->categories()->with('tasks')->get())
+        ]);
     }
 
     public function store(StoreCategoryRequest $request)
@@ -30,7 +33,10 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         Gate::authorize('view', $category);
-        return new CategoryResource($category->load('tasks'));
+        return response()->json([
+            'message' => 'Category fetched successfully',
+            'category' =>new CategoryResource($category->load('tasks'))
+        ]);
     }
 
     public function update(UpdateCategoryRequest $request, Category $category)
@@ -38,8 +44,10 @@ class CategoryController extends Controller
         Gate::authorize('update', $category);
         $category->update($request->validated());
         
-        return new CategoryResource($category->load('tasks'));
-    }
+        return response()->json([
+            'message' => 'Category updated successfully',
+            'category' =>new CategoryResource($category->load('tasks'))
+        ]);    }
 
     public function destroy(Category $category)
     {
