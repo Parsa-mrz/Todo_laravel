@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -16,13 +18,9 @@ class CategoryController extends Controller
         return CategoryResource::collection($request->user()->categories()->with('tasks')->get());
     }
 
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,NULL,id,user_id,' . $request->user()->id,
-        ]);
-
-        $category = $request->user()->categories()->create($request->all());
+        $category = $request->user()->categories()->create($request->validated());
         return response()->json([
             'message' => 'Category created successfully',
             'category' => new CategoryResource($category),
@@ -35,14 +33,11 @@ class CategoryController extends Controller
         return new CategoryResource($category->load('tasks'));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
         Gate::authorize('update', $category);
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id . ',id,user_id,' . $request->user()->id,
-        ]);
-
-        $category->update($request->all());
+        $category->update($request->validated());
+        
         return new CategoryResource($category->load('tasks'));
     }
 
