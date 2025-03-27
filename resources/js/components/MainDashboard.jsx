@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Sidebar from './Sidebar';
 
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [userEmail, setUserEmail] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -34,18 +34,6 @@ const Dashboard = () => {
         },
       });
       setCategories(categoriesResponse.data);
-
-      const userResponse = await axios.get('/api/user', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
-
-      if (userResponse.data && userResponse.data.data && userResponse.data.data.email) {
-        setUserEmail(userResponse.data.data.email);
-      } else {
-        console.error("Email not found in user data:", userResponse.data);
-      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       setError('Failed to load dashboard data');
@@ -164,28 +152,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex">
-      <div className="w-64 h-screen bg-gray-800 text-white p-6 space-y-6">
-        <div className="text-2xl font-semibold">Dashboard</div>
-        <div className="space-y-4">
-          <p className="text-sm">Welcome, {userEmail}</p>
-          <div>
-            <button className="w-full text-left py-2 px-4 text-lg font-medium text-white hover:bg-gray-700 rounded-md transition duration-300 ease-in-out transform hover:scale-105" onClick={() => navigate('/tasks')}>
-              Tasks
-            </button>
-          </div>
-          <div>
-            <button className="w-full text-left py-2 px-4 text-lg font-medium text-white hover:bg-gray-700 rounded-md transition duration-300 ease-in-out transform hover:scale-105" onClick={() => navigate('/categories')}>
-              Categories
-            </button>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105"
-          >
-            Logout
-          </button>
-        </div>
-      </div>
+      <Sidebar/>
 
       <div className="flex-1 p-8 bg-gray-100">
         {error && (

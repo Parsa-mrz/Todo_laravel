@@ -1,18 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import Sidebar from '../Sidebar';
 
 const TaskEdit = () => {
     const { id } = useParams();
     const [title, setTitle] = useState('');
     const [categoryId, setCategoryId] = useState('');
+    const [categorySearch, setCategorySearch] = useState('');
     const [categories, setCategories] = useState([]);
+    const [filteredCategories, setFilteredCategories] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         fetchTask();
         fetchCategories();
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     const fetchTask = async () => {
@@ -22,9 +32,10 @@ const TaskEdit = () => {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
-            const taskData = response.data.data; // Access the nested "data" object
+            const taskData = response.data.data;
             setTitle(taskData.title);
-            setCategoryId(taskData.category ? taskData.category.id : ''); // Handle case where category might be null
+            setCategoryId(taskData.category ? taskData.category.id : '');
+            setCategorySearch(taskData.category ? taskData.category.name : '');
         } catch (err) {
             console.error(err);
             setError('Failed to load task data.');
@@ -38,10 +49,40 @@ const TaskEdit = () => {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
-            setCategories(response.data.data || []); // Ensure it's an array, fallback to empty array if undefined
+            const categoryData = response.data.data || [];
+            setCategories(categoryData);
+            setFilteredCategories(categoryData);
         } catch (err) {
             console.error(err);
             setError('Failed to load categories.');
+        }
+    };
+
+    const handleSearchChange = (e) => {
+        const searchValue = e.target.value;
+        setCategorySearch(searchValue);
+        setShowDropdown(true);
+
+        const filtered = categories.filter((category) =>
+            category.name.toLowerCase().includes(searchValue.toLowerCase())
+        );
+        setFilteredCategories(filtered);
+
+        const exactMatch = categories.find(
+            (category) => category.name.toLowerCase() === searchValue.toLowerCase()
+        );
+        setCategoryId(exactMatch ? exactMatch.id : '');
+    };
+
+    const handleCategorySelect = (category) => {
+        setCategoryId(category.id);
+        setCategorySearch(category.name);
+        setShowDropdown(false);
+    };
+
+    const handleClickOutside = (event) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            setShowDropdown(false);
         }
     };
 
@@ -74,53 +115,71 @@ const TaskEdit = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
-            <h2 className="text-xl font-bold mb-4">Edit Task</h2>
-            {error && (
-                <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
-                    {error}
-                </div>
-            )}
-            <form onSubmit={handleSubmit}>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Task Title</label>
-                    <input
-                        type="text"
-                        className="w-full px-4 py-2 border rounded-md"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Category</label>
-                    <select
-                        className="w-full px-4 py-2 border rounded-md"
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
-                    >
-                        <option value="">Select Category</option>
-                        {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="flex space-x-4">
-                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                        Update
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="bg-gray-500 text-white px-4 py-2 rounded-md"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
+        <div className="flex">
+            <Sidebar/>
+            <div className="flex-1 p-8 bg-white shadow-md rounded-lg">
+                <h2 className="text-xl font-bold mb-4">Edit Task</h2>
+                {error && (
+                    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                        {error}
+                    </div>
+                )}
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 mb-2">Task Title</label>
+                        <input
+                            type="text"
+                            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="mb-4 relative" ref={dropdownRef}>
+                        <label className="block text-gray-700 mb-2">Category</label>
+                        <input
+                            type="text"
+                            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={categorySearch}
+                            onChange={handleSearchChange}
+                            onFocus={() => setShowDropdown(true)}
+                            placeholder="Search or select a category"
+                            required
+                        />
+                        {showDropdown && filteredCategories.length > 0 && (
+                            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-48 overflow-y-auto shadow-lg">
+                                {filteredCategories.map((category) => (
+                                    <li
+                                        key={category.id}
+                                        className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                                        onClick={() => handleCategorySelect(category)}
+                                    >
+                                        {category.name}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        {showDropdown && filteredCategories.length === 0 && categorySearch && (
+                            <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 p-2 text-gray-500">
+                                No matching categories found.
+                            </div>
+                        )}
+                    </div>
+                    <div className="flex space-x-4">
+                        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                            Update
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleCancel}
+                            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>    
     );
 };
 
