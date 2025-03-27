@@ -29,10 +29,6 @@ jobs:
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
-      - name: Create .env File
-        run: |
-          cp .env.example .env
-
       - name: Start Containers
         run: docker compose up -d
 
