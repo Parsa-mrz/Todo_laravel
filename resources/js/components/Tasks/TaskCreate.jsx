@@ -58,6 +58,10 @@ const TaskCreate = () => {
         }
     };
 
+    const handleCancel = () => {
+        navigate(-1);
+    };
+
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
             <h2 className="text-xl font-bold mb-4">Create Task</h2>
@@ -100,12 +104,13 @@ const TaskCreate = () => {
                     >
                         Save
                     </button>
-                    <Link
-                        to="/tasks"
+                    <button
+                        type="button"
+                        onClick={handleCancel}
                         className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
                     >
                         Cancel
-                    </Link>
+                    </button>
                 </div>
             </form>
         </div>

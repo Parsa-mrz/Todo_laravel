@@ -31,6 +31,10 @@ const CategoryCreate = () => {
         }
     };
 
+    const handleCancel = () => {
+        navigate(-1);
+    };
+
     return (
         <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
             <h2 className="text-xl font-bold mb-4">Create Category</h2>
@@ -59,7 +63,7 @@ const CategoryCreate = () => {
                     </button>
                     <button
                         type="button"
-                        onClick={() => navigate("/categories")}
+                        onClick={handleCancel}
                         className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
                     >
                         Cancel

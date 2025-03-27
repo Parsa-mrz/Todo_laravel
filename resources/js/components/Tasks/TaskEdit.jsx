@@ -58,6 +58,10 @@ const TaskEdit = () => {
         }
     };
 
+    const handleCancel = () => {
+        navigate(-1);
+    };
+
     return (
         <div className="max-w-md mx-auto p-6 bg-white shadow-md rounded-lg">
             <h2 className="text-xl font-bold mb-4">Edit Task</h2>
@@ -92,6 +96,13 @@ const TaskEdit = () => {
                 </div>
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
                     Update
+                </button>
+                <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                    >
+                        Cancel
                 </button>
             </form>
         </div>

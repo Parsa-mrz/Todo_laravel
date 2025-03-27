@@ -113,11 +113,11 @@ const Dashboard = () => {
           },
         }
       );
-      return true; // Indicate success
+      return true;
     } catch (error) {
       console.error('Error updating task status:', error);
       setError('Failed to update task status');
-      return false; // Indicate failure
+      return false;
     }
   };
 
@@ -125,10 +125,10 @@ const Dashboard = () => {
     const { destination, source, draggableId } = result;
 
     if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return; // No change if dropped in the same place or outside a droppable
+      return;
     }
 
-    const taskId = parseInt(draggableId); // Convert string to integer since draggableId is a string
+    const taskId = parseInt(draggableId);
     let newStatus;
 
     switch (destination.droppableId) {
@@ -145,18 +145,15 @@ const Dashboard = () => {
         return;
     }
 
-    // Optimistically update the UI first
     setTasks(prevTasks =>
       prevTasks.map(task =>
         task.id === taskId ? { ...task, status: newStatus } : task
       )
     );
 
-    // Then make the API call
     const success = await handleTaskUpdate(taskId, newStatus);
 
     if (!success) {
-      // Revert the change if the API call fails
       setTasks(prevTasks =>
         prevTasks.map(task =>
           task.id === taskId ? { ...task, status: groupedTasks[source.droppableId].find(t => t.id === taskId).status } : task
@@ -233,7 +230,7 @@ const Dashboard = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="border p-4 mb-4 rounded-lg shadow-sm hover:bg-yellow-50 transition duration-300"
+                              className="border p-4 mb-4 rounded-lg shadow-sm bg-yellow-50 transition duration-300"
                             >
                               <h4 className="text-lg font-semibold">{task.title}</h4>
                               <p className="text-sm text-gray-600">{task.description}</p>
@@ -283,7 +280,7 @@ const Dashboard = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="border p-4 mb-4 rounded-lg shadow-sm hover:bg-blue-50 transition duration-300"
+                              className="border p-4 mb-4 rounded-lg shadow-sm bg-blue-50 transition duration-300"
                             >
                               <h4 className="text-lg font-semibold">{task.title}</h4>
                               <p className="text-sm text-gray-600">{task.description}</p>
@@ -333,7 +330,7 @@ const Dashboard = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className="border p-4 mb-4 rounded-lg shadow-sm hover:bg-green-50 transition duration-300"
+                              className="border p-4 mb-4 rounded-lg shadow-sm bg-green-50 transition duration-300"
                             >
                               <h4 className="text-lg font-semibold">{task.title}</h4>
                               <p className="text-sm text-gray-600">{task.description}</p>
