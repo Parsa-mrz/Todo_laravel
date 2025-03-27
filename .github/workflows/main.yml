@@ -1,4 +1,4 @@
-name: CI/CD todo_laravel
+name: CI/CD Todo Laravel
 
 on:
   push:
@@ -29,11 +29,23 @@ jobs:
       - name: Install Docker Compose
         run: sudo apt-get update && sudo apt-get install -y docker-compose
 
+      - name: Create .env File
+        run: |
+          cp .env.example .env
+
       - name: Start Containers
         run: docker compose up -d
 
+      - name: Wait for app container to be healthy
+        run: |
+          # Wait for 'laravel' container to become healthy
+          until docker compose ps laravel | grep "healthy"; do
+            echo "Waiting for 'laravel' container to be healthy..."
+            sleep 5
+          done
+
       - name: Run Laravel Tests
-        run: docker compose exec -T app php artisan test
+        run: docker compose exec -T laravel php artisan test
 
       - name: Stop Containers
         run: docker compose down
@@ -55,9 +67,9 @@ jobs:
           script: |
             cd /var/www/todo_laravel
             git pull origin main
-            docker compose down
-            docker compose build
-            docker compose up -d --force-recreate
+            docker-compose down
+            docker-compose build
+            docker-compose up -d --force-recreate
             docker image prune -f
 
       - name: Set Permissions
