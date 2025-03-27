@@ -75,11 +75,26 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/todo_laravel
-            git pull origin main
+            PROJECT_DIR="/var/www/todo_laravel"
+            PAT="${{ secrets.LIARA_GITHUB_PAT }}"
+            
+            # Check if the directory exists and is NOT empty
+            if [ -d "$PROJECT_DIR" ] && [ "$(ls -A $PROJECT_DIR)" ]; then
+              echo "✅ Directory exists and is not empty. Pulling latest changes..."
+              cd "$PROJECT_DIR" || { echo "❌ Error: Failed to cd into $PROJECT_DIR"; exit 1; }
+              git pull https://"$PAT"@github.com/Parsa-mrz/Todo_laravel.git main || { echo "❌ Error: Git pull failed"; exit 1; }
+            else
+              echo "🚀 Directory does not exist or is empty. Cloning fresh..."
+              rm -rf "$PROJECT_DIR"
+              git clone https://"$PAT"@github.com/Parsa-mrz/Todo_laravel.git "$PROJECT_DIR" || { echo "❌ Error: Git clone failed"; exit 1; }
+              cd "$PROJECT_DIR" || { echo "❌ Error: Failed to cd into $PROJECT_DIR after cloning"; exit 1; }
+            fi
+            
+            # Change to the project directory and deploy using Docker Compose
+            cd "$PROJECT_DIR"
             docker-compose down
             docker-compose build
             docker-compose up -d --force-recreate
             docker-compose exec -T laravel php artisan migrate --force
-            chmod -R 775 storage bootstrap/cache
             docker image prune -f
+            docker ps -a
