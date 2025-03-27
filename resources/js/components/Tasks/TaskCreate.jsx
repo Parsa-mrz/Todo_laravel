@@ -22,7 +22,7 @@ const TaskCreate = () => {
             });
             setCategories(response.data.data);
         } catch (err) {
-            console.error("Error fetching categories:", err);
+            setError("Something went wrong. Please try again later.");
         }
     };
 

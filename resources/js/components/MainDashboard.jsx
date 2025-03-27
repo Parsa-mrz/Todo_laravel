@@ -36,7 +36,12 @@ const Dashboard = () => {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`,
           },
         });
-        setUserEmail(userResponse.data.email);
+        
+        if (userResponse.data && userResponse.data.data && userResponse.data.data.email) {
+          setUserEmail(userResponse.data.data.email);
+        } else {
+          console.error("Email not found in user data:", userResponse.data);
+        }
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       }
@@ -86,7 +91,6 @@ const Dashboard = () => {
           },
         }
       );
-      console.log('Task updated:', response.data);
       setTasks(prevTasks => prevTasks.map(task => 
         task.id === taskId ? { ...task, status: newStatus } : task
       ));
@@ -106,7 +110,6 @@ const Dashboard = () => {
       const taskId = result.draggableId;
       let newStatus = destination.droppableId;
 
-      // Map the droppableId to the backend status
       switch (newStatus) {
         case 'pending':
           newStatus = 'pending';
@@ -239,7 +242,7 @@ const Dashboard = () => {
                         </Draggable>
                       ))
                     ) : (
-                      <p>No tasks in progress.</p>
+                      <p>No in-progress tasks available.</p>
                     )}
                     {provided.placeholder}
                   </ul>
@@ -276,7 +279,7 @@ const Dashboard = () => {
                         </Draggable>
                       ))
                     ) : (
-                      <p>No completed tasks.</p>
+                      <p>No completed tasks available.</p>
                     )}
                     {provided.placeholder}
                   </ul>
