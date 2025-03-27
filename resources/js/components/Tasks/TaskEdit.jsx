@@ -22,10 +22,12 @@ const TaskEdit = () => {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
-            setTitle(response.data.title);
-            setCategoryId(response.data.category_id);
+            const taskData = response.data.data; // Access the nested "data" object
+            setTitle(taskData.title);
+            setCategoryId(taskData.category ? taskData.category.id : ''); // Handle case where category might be null
         } catch (err) {
             console.error(err);
+            setError('Failed to load task data.');
         }
     };
 
@@ -36,16 +38,25 @@ const TaskEdit = () => {
                     Authorization: `Bearer ${localStorage.getItem('authToken')}`,
                 },
             });
-            setCategories(response.data.data);
+            setCategories(response.data.data || []); // Ensure it's an array, fallback to empty array if undefined
         } catch (err) {
             console.error(err);
+            setError('Failed to load categories.');
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.put(`/api/tasks/${id}`, { title, category_id: categoryId });
+            await axios.put(
+                `/api/tasks/${id}`,
+                { title, category_id: categoryId },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+                    },
+                }
+            );
             navigate('/tasks');
         } catch (err) {
             if (err.response && err.response.status === 422) {
@@ -90,20 +101,24 @@ const TaskEdit = () => {
                     >
                         <option value="">Select Category</option>
                         {categories.map((category) => (
-                            <option key={category.id} value={category.id}>{category.name}</option>
+                            <option key={category.id} value={category.id}>
+                                {category.name}
+                            </option>
                         ))}
                     </select>
                 </div>
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-                    Update
-                </button>
-                <button
+                <div className="flex space-x-4">
+                    <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
+                        Update
+                    </button>
+                    <button
                         type="button"
                         onClick={handleCancel}
                         className="bg-gray-500 text-white px-4 py-2 rounded-md"
                     >
                         Cancel
-                </button>
+                    </button>
+                </div>
             </form>
         </div>
     );
