@@ -40,7 +40,9 @@ const TaskEdit = () => {
             setCategoryId(taskData.category ? taskData.category.id : '');
             setCategorySearch(taskData.category ? taskData.category.name : '');
             setStatus(taskData.status || 'pending');
-            setDueDate(taskData.due_date || '');
+            
+            const datePart = taskData.due_date ? taskData.due_date.split(' ')[0] : '';
+            setDueDate(datePart);
         } catch (err) {
             console.error(err);
             setError('Failed to load task data.');
