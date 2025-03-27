@@ -7,12 +7,14 @@ const TaskCreate = () => {
     const [title, setTitle] = useState("");
     const [categoryId, setCategoryId] = useState("");
     const [categorySearch, setCategorySearch] = useState("");
+    const [dueDate, setDueDate] = useState("");
     const [categories, setCategories] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
+    const dateInputRef = useRef(null);
 
     useEffect(() => {
         fetchCategories();
@@ -60,10 +62,15 @@ const TaskCreate = () => {
         setShowDropdown(false);
     };
 
-    // Close dropdown when clicking outside
     const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
             setShowDropdown(false);
+        }
+    };
+
+    const handleDateClick = () => {
+        if (dateInputRef.current) {
+            dateInputRef.current.showPicker();
         }
     };
 
@@ -71,15 +78,22 @@ const TaskCreate = () => {
         e.preventDefault();
         setError("");
 
-        if (!title.trim() || !categoryId) {
-            setError("Title and category are required.");
+        if (!title.trim() || !categoryId || !dueDate) {
+            setError("Title, category, and due date are required.");
             return;
         }
+
+        const taskData = { 
+            title, 
+            category_id: categoryId,
+            due_date: dueDate 
+        };
+        console.log('Sending to backend:', taskData);
 
         try {
             await axios.post(
                 "/api/tasks",
-                { title, category_id: categoryId },
+                taskData,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("authToken")}`,
@@ -115,7 +129,7 @@ const TaskCreate = () => {
                 )}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-gray-700 mb-2">Title</label>
+                        <label className="block text-gray-700 mb-2">Title *</label>
                         <input
                             type="text"
                             className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
@@ -125,7 +139,7 @@ const TaskCreate = () => {
                         />
                     </div>
                     <div className="mb-4 relative" ref={dropdownRef}>
-                        <label className="block text-gray-700 mb-2">Category</label>
+                        <label className="block text-gray-700 mb-2">Category *</label>
                         <input
                             type="text"
                             className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
@@ -153,6 +167,18 @@ const TaskCreate = () => {
                                 No matching categories found.
                             </div>
                         )}
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 mb-2">Due Date *</label>
+                        <input
+                            ref={dateInputRef}
+                            type="date"
+                            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            onClick={handleDateClick}
+                            required
+                        />
                     </div>
                     <div className="flex space-x-3">
                         <button

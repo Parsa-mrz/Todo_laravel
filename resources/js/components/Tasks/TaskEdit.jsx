@@ -9,12 +9,14 @@ const TaskEdit = () => {
     const [categoryId, setCategoryId] = useState('');
     const [categorySearch, setCategorySearch] = useState('');
     const [status, setStatus] = useState('');
+    const [dueDate, setDueDate] = useState('');
     const [categories, setCategories] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
+    const dateInputRef = useRef(null);
 
     useEffect(() => {
         fetchTask();
@@ -38,6 +40,7 @@ const TaskEdit = () => {
             setCategoryId(taskData.category ? taskData.category.id : '');
             setCategorySearch(taskData.category ? taskData.category.name : '');
             setStatus(taskData.status || 'pending');
+            setDueDate(taskData.due_date || '');
         } catch (err) {
             console.error(err);
             setError('Failed to load task data.');
@@ -88,16 +91,31 @@ const TaskEdit = () => {
         }
     };
 
+    const handleDateClick = () => {
+        if (dateInputRef.current) {
+            dateInputRef.current.showPicker();
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            if (!title.trim() || !categoryId || !dueDate) {
+                setError("Title, category, and due date are required.");
+                return;
+            }
+
+            const taskData = { 
+                title, 
+                category_id: categoryId, 
+                status,
+                due_date: dueDate
+            };
+            console.log('Updating task with:', taskData);
+
             await axios.put(
                 `/api/tasks/${id}`,
-                { 
-                    title, 
-                    category_id: categoryId, 
-                    status
-                },
+                taskData,
                 {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -132,7 +150,7 @@ const TaskEdit = () => {
                 )}
                 <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-lg">
                     <div className="mb-4">
-                        <label className="block text-gray-700 mb-2">Task Title</label>
+                        <label className="block text-gray-700 mb-2">Task Title *</label>
                         <input
                             type="text"
                             className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
@@ -142,7 +160,7 @@ const TaskEdit = () => {
                         />
                     </div>
                     <div className="mb-4 relative" ref={dropdownRef}>
-                        <label className="block text-gray-700 mb-2">Category</label>
+                        <label className="block text-gray-700 mb-2">Category *</label>
                         <input
                             type="text"
                             className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
@@ -170,6 +188,18 @@ const TaskEdit = () => {
                                 No matching categories found.
                             </div>
                         )}
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-700 mb-2">Due Date *</label>
+                        <input
+                            ref={dateInputRef}
+                            type="date"
+                            className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            onClick={handleDateClick}
+                            required
+                        />
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Status</label>
