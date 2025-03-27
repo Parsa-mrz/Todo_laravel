@@ -17,6 +17,7 @@ const Dashboard = () => {
           },
         });
 
+        //todo: remove the console.log statement
         console.log("Tasks Response: ", tasksResponse.data); // Log the API response to inspect
 
         if (tasksResponse.data && Array.isArray(tasksResponse.data.data)) {
@@ -33,6 +34,7 @@ const Dashboard = () => {
         setCategories(categoriesResponse.data);
 
         // Fetch user email
+        //todo: fetch user email from the API
         const userResponse = await axios.get('/api/user', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -67,6 +69,7 @@ const Dashboard = () => {
     complete: Array.isArray(tasks) ? tasks.filter(task => task.status.toLowerCase() === 'completed') : [],
   };
 
+  //todo: remove the console.log statement
   console.log("Grouped Tasks: ", groupedTasks); // Log grouped tasks
 
   // Function to format the date to YYYY-MM-DD
