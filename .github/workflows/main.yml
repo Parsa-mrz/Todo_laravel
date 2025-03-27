@@ -38,9 +38,9 @@ jobs:
 
       - name: Wait for app container to be healthy
         run: |
-          # Wait for 'laravel' container to become healthy
-          until docker compose ps laravel | grep "healthy"; do
-            echo "Waiting for 'laravel' container to be healthy..."
+          # Wait for 'todo_app' container to become healthy
+          until docker compose ps todo_app | grep "healthy"; do
+            echo "Waiting for 'todo_app' container to be healthy..."
             sleep 5
           done
 
