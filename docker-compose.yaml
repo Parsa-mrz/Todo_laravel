@@ -1,0 +1,49 @@
+version: '3.8'
+
+volumes:
+  vendor_develop: {}
+  laravel_storage: {}
+  pgdata_develop: {}
+
+services:
+  laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: todo_app
+    container_name: todo_app
+    env_file:
+      - .env
+    volumes:
+      - .:/var/www/html
+      - vendor_develop:/var/www/html/vendor
+      - laravel_storage:/var/www/html/storage
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+      - "5173:5173"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  postgres:
+    image: postgres:16
+    container_name: postgresDB
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: todo
+    volumes:
+      - pgdata_develop:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
