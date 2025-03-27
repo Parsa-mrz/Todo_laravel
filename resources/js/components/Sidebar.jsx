@@ -1,4 +1,3 @@
-// Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -38,34 +37,40 @@ const Sidebar = () => {
     const activeButtonStyle = "bg-gray-700 scale-105";
 
     return (
-        <div className="w-64 h-screen bg-gray-800 text-white p-6 space-y-6">
-            <div className="text-2xl font-semibold">Dashboard</div>
-            <div className="space-y-4">
-                <p className="text-sm">Welcome, {userEmail || 'User'}</p>
-                <div>
-                    <button 
-                        className={`${baseButtonStyle} ${location.pathname === '/dashboard' || location.pathname === '/' ? activeButtonStyle : ''}`} 
-                        onClick={() => navigate('/dashboard')}
-                    >
-                        Dashboard
-                    </button>
+        <div className="w-64 h-screen bg-gray-800 text-white p-6 flex flex-col justify-between">
+            <div>
+                <div className="text-2xl font-semibold">Welcome</div>
+                <div className="space-y-4 mt-4">
+                    <p className="text-sm">{userEmail || 'User'}</p>
+                    <div>
+                        <button 
+                            className={`${baseButtonStyle} ${location.pathname === '/dashboard' || location.pathname === '/' ? activeButtonStyle : ''}`} 
+                            onClick={() => navigate('/dashboard')}
+                        >
+                            Dashboard
+                        </button>
+                    </div>
+                    <div>
+                        <button 
+                            className={`${baseButtonStyle} ${location.pathname === '/tasks' ? activeButtonStyle : ''}`} 
+                            onClick={() => navigate('/tasks')}
+                        >
+                            Tasks
+                        </button>
+                    </div>
+                    <div>
+                        <button 
+                            className={`${baseButtonStyle} ${location.pathname === '/categories' ? activeButtonStyle : ''}`} 
+                            onClick={() => navigate('/categories')}
+                        >
+                            Categories
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <button 
-                        className={`${baseButtonStyle} ${location.pathname === '/tasks' ? activeButtonStyle : ''}`} 
-                        onClick={() => navigate('/tasks')}
-                    >
-                        Tasks
-                    </button>
-                </div>
-                <div>
-                    <button 
-                        className={`${baseButtonStyle} ${location.pathname === '/categories' ? activeButtonStyle : ''}`} 
-                        onClick={() => navigate('/categories')}
-                    >
-                        Categories
-                    </button>
-                </div>
+            </div>
+
+            {/* Logout Button */}
+            <div>
                 <button
                     onClick={handleLogout}
                     className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105"

@@ -17,12 +17,16 @@ const ProtectedRoute = ({ element }) => {
     return localStorage.getItem('authToken') ? element : <Navigate to="/login" />;
 };
 
+const ProtectedLogin = ({ element }) => {
+    return localStorage.getItem('authToken') ? <Navigate to="/dashboard" /> : element;
+};
+
 const App = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/login" element={<ProtectedRoute element={<Login />} />} />
-                <Route path="/register" element={<ProtectedRoute element={<Register />} />} />
+                <Route path="/login" element={<ProtectedLogin element={<Login />} />} />
+                <Route path="/register" element={<ProtectedLogin element={<Register />} />} />
                 <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
                 
                 {/* Task Routes */}
