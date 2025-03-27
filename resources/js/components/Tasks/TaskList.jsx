@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 const TaskList = () => {
     const [tasks, setTasks] = useState([]);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         fetchTasks();

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 const CategoryList = () => {
     const [categories, setCategories] = useState([]);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         fetchCategories();
