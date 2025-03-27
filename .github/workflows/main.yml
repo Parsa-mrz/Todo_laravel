@@ -4,10 +4,25 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: root
+          POSTGRES_USER: root
+          POSTGRES_DB: todo
+        ports:
+          - 5432:5432
+        options: --health-cmd "pg_isready" --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -17,36 +32,37 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t todo-laravel:latest .
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Install Docker Compose
-        run: sudo apt-get update && sudo apt-get install -y docker-compose
+          docker build -t todo_app:latest -f Dockerfile .
 
       - name: Start Containers
-        run: docker compose up -d
+        run: |
+          docker-compose up -d
+
+      - name: Wait for Laravel Healthcheck
+        run: |
+          until docker inspect --format='{{.State.Health.Status}}' todo_app | grep -q "healthy"; do
+            echo "Waiting for Laravel service to be healthy..."
+            sleep 2
+          done
 
       - name: Run Laravel Tests
-        run: docker compose exec -T todo_app php artisan test
+        run: |
+          docker-compose exec -T laravel php artisan test
 
       - name: Stop Containers
-        run: docker compose down
+        run: |
+          docker-compose down
 
   deploy:
     runs-on: ubuntu-latest
-    needs: test
+    needs: build-and-test
     if: github.ref == 'refs/heads/main'
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Deploy via SSH
+      - name: Deploy to Server
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -58,14 +74,6 @@ jobs:
             docker-compose down
             docker-compose build
             docker-compose up -d --force-recreate
+            docker-compose exec -T laravel php artisan migrate --force
+            chmod -R 775 storage bootstrap/cache
             docker image prune -f
-
-      - name: Set Permissions
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /var/www/todo_laravel
-            chmod -R 777 storage bootstrap/cache
