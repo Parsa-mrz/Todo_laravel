@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD todo_laravel
 
 on:
   push:
@@ -26,14 +26,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Install Docker Compose
+        run: sudo apt-get update && sudo apt-get install -y docker-compose
+
       - name: Start Containers
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Run Laravel Tests
-        run: docker-compose exec -T app php artisan test
+        run: docker compose exec -T app php artisan test
 
       - name: Stop Containers
-        run: docker-compose down
+        run: docker compose down
 
   deploy:
     runs-on: ubuntu-latest
@@ -52,9 +55,9 @@ jobs:
           script: |
             cd /var/www/todo_laravel
             git pull origin main
-            docker-compose down
-            docker-compose build
-            docker-compose up -d --force-recreate
+            docker compose down
+            docker compose build
+            docker compose up -d --force-recreate
             docker image prune -f
 
       - name: Set Permissions
